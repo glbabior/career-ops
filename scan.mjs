@@ -105,15 +105,18 @@ function resolveProvider(entry, providers) {
 // ── Title filter ────────────────────────────────────────────────────
 
 function buildTitleFilter(titleFilter) {
-  const positive = (titleFilter?.positive || []).map(k => k.toLowerCase());
-  const negative = (titleFilter?.negative || []).map(k => k.toLowerCase());
+  const positive = (titleFilter?.positive || []).map(k => new RegExp(`\\b${escapeRegExp(k)}\\b`, 'i'));
+  const negative = (titleFilter?.negative || []).map(k => new RegExp(`\\b${escapeRegExp(k)}\\b`, 'i'));
 
   return (title) => {
-    const lower = title.toLowerCase();
-    const hasPositive = positive.length === 0 || positive.some(k => lower.includes(k));
-    const hasNegative = negative.some(k => lower.includes(k));
+    const hasPositive = positive.length === 0 || positive.some(re => re.test(title));
+    const hasNegative = negative.some(re => re.test(title));
     return hasPositive && !hasNegative;
   };
+}
+
+function escapeRegExp(string) {
+  return string.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
 }
 
 // ── Location filter ─────────────────────────────────────────────────

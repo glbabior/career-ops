@@ -1,0 +1,8 @@
+{
+    "workbench.colorTheme": "Monokai",
+    "editor.wordWrap": "on",
+    "editor.fontFamily": "Consolas, 'Courier New', monospace",
+    "editor.fontSize": 14,
+    "terminal.integrated.fontFamily": "Cascadia Mono, 'Courier New', monospace",
+    "terminal.integrated.fontSize": 12
+}

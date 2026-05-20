@@ -235,10 +235,68 @@
   .status-discarded { color: var(--muted);   border-color: var(--border);        }
   .status-evaluated { color: var(--yellow);  border-color: rgba(210,153,34,.4);  background: rgba(210,153,34,.07);  }
 
-  .report-link { color: var(--accent); text-decoration: none; }
-  .report-link:hover { text-decoration: underline; }
-
   .table-meta { font-size: 12px; color: var(--muted); margin-bottom: 10px; }
+
+  #score-table tbody tr[data-report-path] { cursor: pointer; }
+
+  /* Report panel */
+  #report-wrap {
+    position: absolute; inset: 0;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+  }
+  #report-wrap.hidden { display: none; }
+
+  #report-toolbar {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 8px 18px;
+    border-bottom: 1px solid var(--border);
+    background: var(--bg2);
+    flex-shrink: 0;
+  }
+  #back-btn {
+    padding: 4px 12px;
+    font-size: 12px;
+    border-radius: 6px;
+    border: 1px solid var(--border);
+    background: var(--bg3);
+    color: var(--text);
+    cursor: pointer;
+  }
+  #back-btn:hover { border-color: var(--accent); color: var(--accent); }
+  #report-label { font-size: 12px; color: var(--muted); }
+
+  #report-content {
+    flex: 1;
+    overflow-y: auto;
+    padding: 20px 28px;
+    max-width: 860px;
+    font-size: 13px;
+    line-height: 1.65;
+  }
+  #report-content h1 { font-size: 17px; font-weight: 700; margin: 0 0 14px; }
+  #report-content h2 { font-size: 11px; font-weight: 700; margin: 22px 0 8px; color: var(--accent); text-transform: uppercase; letter-spacing: .07em; }
+  #report-content h3 { font-size: 13px; font-weight: 600; margin: 14px 0 5px; }
+  #report-content p  { margin: 3px 0; color: var(--text); }
+  #report-content hr { border: none; border-top: 1px solid var(--border); margin: 16px 0; }
+  #report-content strong { font-weight: 600; color: var(--text); }
+  #report-content em { font-style: italic; color: var(--muted); }
+  #report-content code { background: var(--bg3); padding: 1px 5px; border-radius: 3px; font-family: 'Cascadia Code', Consolas, monospace; font-size: 12px; }
+  #report-content ul { margin: 5px 0 5px 20px; list-style: disc; }
+  #report-content li { margin: 2px 0; }
+  #report-content a  { color: var(--accent); text-decoration: none; }
+  #report-content a:hover { text-decoration: underline; }
+  #report-content br { display: block; margin: 3px 0; content: ''; }
+  #report-content ol { margin: 5px 0 5px 20px; }
+
+  .md-table { width: 100%; border-collapse: collapse; margin: 10px 0 14px; font-size: 13px; }
+  .md-table th { text-align: left; padding: 5px 10px; font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: .06em; color: var(--muted); border-bottom: 2px solid var(--border); background: var(--bg2); }
+  .md-table td { padding: 6px 10px; border-bottom: 1px solid var(--border); vertical-align: top; line-height: 1.5; }
+  .md-table tr:last-child td { border-bottom: none; }
+  .md-table tbody tr:hover td { background: rgba(255,255,255,.03); }
 
   /* Scrollbar */
   ::-webkit-scrollbar { width: 6px; }
@@ -278,6 +336,14 @@
       <div id="terminal" class="hidden">
         <div id="terminal-output"></div>
         <span id="cursor" class="cursor hidden"></span>
+      </div>
+
+      <div id="report-wrap" class="hidden">
+        <div id="report-toolbar">
+          <button id="back-btn" onclick="backToTable()">← Score Table</button>
+          <span id="report-label"></span>
+        </div>
+        <div id="report-content"></div>
       </div>
 
       <div id="table-wrap" class="hidden">
@@ -492,10 +558,14 @@
       else if (statusLower === 'discarded') statusClass += ' status-discarded';
       else if (statusLower === 'evaluated') statusClass += ' status-evaluated';
 
-      var reportCell = '';
       if (r.reportPath) {
-        reportCell = '<a class="report-link" href="' + r.reportPath + '" target="_blank">' + (r.reportNum || 'view') + '</a>';
+        tr.dataset.reportPath  = r.reportPath;
+        tr.dataset.reportLabel = r.company + ' — ' + r.role;
       }
+
+      var reportCell = r.reportPath
+        ? '<span style="color:var(--accent);font-size:12px;font-weight:500">' + (r.reportNum || '#') + '</span>'
+        : '';
 
       tr.innerHTML =
         '<td style="color:var(--muted);font-size:12px">' + (i + 1) + '</td>' +
@@ -514,6 +584,145 @@
       tr.innerHTML = '<td colspan="7" style="color:var(--muted);text-align:center;padding:24px">No applications found in applications.md</td>';
       tbody.appendChild(tr);
     }
+  }
+
+  // Row-click delegation — open report in dashboard panel
+  document.getElementById('table-body').addEventListener('click', function(e) {
+    if (e.target.tagName === 'A' || e.target.tagName === 'BUTTON') return;
+    var tr = e.target.closest('tr');
+    if (!tr || !tr.dataset.reportPath) return;
+    showReport(tr.dataset.reportPath, tr.dataset.reportLabel);
+  });
+
+  // ── Report view ───────────────────────────────────────────────────
+  function showReport(reportPath, label) {
+    document.getElementById('welcome').classList.add('hidden');
+    document.getElementById('terminal').classList.add('hidden');
+    document.getElementById('table-wrap').classList.add('hidden');
+    document.getElementById('report-wrap').classList.remove('hidden');
+    document.getElementById('report-label').textContent = label || '';
+    document.getElementById('report-content').innerHTML = '<span style="color:var(--muted)">Loading…</span>';
+    setTitle('📄 Report', label || '');
+    setStatus('running');
+
+    fetch('/report?path=' + encodeURIComponent(reportPath))
+      .then(function(r) { return r.json(); })
+      .then(function(d) {
+        document.getElementById('report-content').innerHTML = markdownToHtml(d.content);
+        setStatus('done');
+      })
+      .catch(function() {
+        document.getElementById('report-content').innerHTML = '<span style="color:var(--red)">Failed to load report.</span>';
+        setStatus('error');
+      });
+  }
+
+  window.backToTable = function() {
+    document.getElementById('report-wrap').classList.add('hidden');
+    document.getElementById('table-wrap').classList.remove('hidden');
+    setActive('table');
+    setTitle('📊 Score Table', 'All evaluated jobs sorted by match score');
+    setStatus('done');
+  };
+
+  function markdownToHtml(md) {
+    var lines = md.split('\n');
+    var html = '';
+    var inUl = false, inOl = false;
+    var tableLines = [];
+
+    function fmt(text) {
+      text = text.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+      text = text.replace(/\*\*\*(.+?)\*\*\*/g, '<strong><em>$1</em></strong>');
+      text = text.replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>');
+      text = text.replace(/\*([^*\n]+)\*/g, '<em>$1</em>');
+      text = text.replace(/`([^`]+)`/g, '<code>$1</code>');
+      text = text.replace(/\[([^\]]+)\]\(([^)]+)\)/g, '<a href="$2" target="_blank">$1</a>');
+      return text;
+    }
+
+    function parseRow(line) {
+      var parts = line.split('|');
+      if (parts.length && parts[0].trim() === '') parts.shift();
+      if (parts.length && parts[parts.length - 1].trim() === '') parts.pop();
+      return parts.map(function(p) { return p.trim(); });
+    }
+
+    function isSepRow(line) {
+      var cells = parseRow(line);
+      return cells.length > 0 && cells.every(function(c) { return /^[\-\s:]+$/.test(c); });
+    }
+
+    function flushTable() {
+      if (!tableLines.length) return;
+      var rows = tableLines; tableLines = [];
+      var sepIdx = -1;
+      for (var j = 0; j < rows.length; j++) { if (isSepRow(rows[j])) { sepIdx = j; break; } }
+      var dataRows = rows.filter(function(_, i) { return i !== sepIdx; });
+      html += '<table class="md-table">';
+      if (sepIdx === 1 && dataRows.length > 0) {
+        html += '<thead><tr>';
+        parseRow(dataRows[0]).forEach(function(c) { html += '<th>' + fmt(c) + '</th>'; });
+        html += '</tr></thead><tbody>';
+        for (var j = 1; j < dataRows.length; j++) {
+          html += '<tr>';
+          parseRow(dataRows[j]).forEach(function(c) { html += '<td>' + fmt(c) + '</td>'; });
+          html += '</tr>';
+        }
+        html += '</tbody>';
+      } else {
+        dataRows.forEach(function(row) {
+          html += '<tr>';
+          parseRow(row).forEach(function(c) { html += '<td>' + fmt(c) + '</td>'; });
+          html += '</tr>';
+        });
+      }
+      html += '</table>';
+    }
+
+    function closeLists() {
+      if (inUl) { html += '</ul>'; inUl = false; }
+      if (inOl) { html += '</ol>'; inOl = false; }
+    }
+
+    for (var i = 0; i < lines.length; i++) {
+      var line = lines[i];
+      var trimmed = line.trim();
+
+      if (/^\|.+\|$/.test(trimmed)) { closeLists(); tableLines.push(trimmed); continue; }
+      if (tableLines.length) flushTable();
+
+      if      (/^### /.test(line)) { closeLists(); html += '<h3>' + fmt(line.slice(4)) + '</h3>'; continue; }
+      else if (/^## /.test(line))  { closeLists(); html += '<h2>' + fmt(line.slice(3)) + '</h2>'; continue; }
+      else if (/^# /.test(line))   { closeLists(); html += '<h1>' + fmt(line.slice(2)) + '</h1>'; continue; }
+
+      if (/^---+$/.test(trimmed)) { closeLists(); html += '<hr>'; continue; }
+
+      var olM = line.match(/^(\d+)\. (.+)/);
+      if (olM) {
+        if (!inOl) { closeLists(); html += '<ol>'; inOl = true; }
+        var liText = fmt(olM[2]);
+        while (i + 1 < lines.length && /^[ \t]{2,}\S/.test(lines[i + 1])) { i++; liText += ' ' + fmt(lines[i].trim()); }
+        html += '<li>' + liText + '</li>';
+        continue;
+      }
+
+      if (/^- /.test(line)) {
+        if (!inUl) { closeLists(); html += '<ul>'; inUl = true; }
+        var liText = fmt(line.slice(2));
+        while (i + 1 < lines.length && /^[ \t]{2,}\S/.test(lines[i + 1])) { i++; liText += ' ' + fmt(lines[i].trim()); }
+        html += '<li>' + liText + '</li>';
+        continue;
+      }
+
+      if (trimmed === '') { closeLists(); html += '<br>'; continue; }
+      closeLists();
+      html += '<p>' + fmt(line) + '</p>';
+    }
+
+    if (tableLines.length) flushTable();
+    closeLists();
+    return html;
   }
 
   function esc(s) {

@@ -329,6 +329,17 @@ createServer((req, res) => {
     return;
   }
 
+  if (pathname === '/report') {
+    const qp = new URL(req.url, 'http://localhost').searchParams.get('path');
+    if (!qp) { res.writeHead(400); res.end('Missing path'); return; }
+    const abs = path.resolve(ROOT, qp);
+    if (!abs.startsWith(path.join(ROOT, 'reports'))) { res.writeHead(403); res.end('Forbidden'); return; }
+    if (!existsSync(abs)) { res.writeHead(404); res.end('Not found'); return; }
+    res.writeHead(200, { 'Content-Type': 'application/json' });
+    res.end(JSON.stringify({ content: readFileSync(abs, 'utf-8') }));
+    return;
+  }
+
   if (pathname === '/run/liveness') {
     const urls = getReportUrls();
     res.writeHead(200, SSE_HEADERS);

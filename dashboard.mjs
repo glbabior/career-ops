@@ -61,6 +61,14 @@ export const COMMANDS = [
     type: 'table',
   },
   {
+    id: 'stats',
+    label: 'Statistics',
+    icon: '🗂️',
+    group: 'Review',
+    description: 'Pipeline stats, score distribution, and open application ages',
+    type: 'stats',
+  },
+  {
     id: 'liveness',
     label: 'Liveness Check',
     icon: '❤️',
@@ -74,8 +82,7 @@ export const COMMANDS = [
     icon: '📈',
     group: 'Review',
     description: 'Rejection and success patterns across applications',
-    type: 'stream',
-    shell: 'node analyze-patterns.mjs',
+    type: 'patterns',
   },
   {
     id: 'followup',
@@ -83,8 +90,7 @@ export const COMMANDS = [
     icon: '📅',
     group: 'Review',
     description: 'Which applications are due for follow-up',
-    type: 'stream',
-    shell: 'node followup-cadence.mjs',
+    type: 'followup',
   },
   // Maintenance
   {
@@ -159,6 +165,132 @@ function parseApplications() {
   return rows.sort((a, b) => b.score - a.score);
 }
 
+function computeStats() {
+  const apps = parseApplications();
+  const logFile = path.join(ROOT, 'data', 'activity-log.md');
+  const activityMap = {};
+  if (existsSync(logFile)) {
+    for (const line of readFileSync(logFile, 'utf-8').split('\n')) {
+      if (!line.startsWith('|')) continue;
+      const cols = line.split('|').map(c => c.trim()).filter(Boolean);
+      if (cols.length < 4 || cols[0] === '#' || /^-+$/.test(cols[0])) continue;
+      const n = cols[1];
+      if (!activityMap[n]) activityMap[n] = [];
+      activityMap[n].push({ date: cols[2], event: cols[3], notes: cols[4] || '' });
+    }
+  }
+
+  const today = new Date(); today.setHours(0, 0, 0, 0);
+  const activeSet  = new Set(['applied', 'responded', 'interview']);
+  const closedSet  = new Set(['rejected', 'discarded', 'offer']);
+  const byStage    = { Applied: 0, Responded: 0, Interview: 0, Offer: 0, Rejected: 0, Discarded: 0 };
+  const scores     = { high: 0, mid: 0, low: 0 };
+  let appliedCount = 0, activeCount = 0, closedCount = 0;
+  const openApps = [], appliedDates = [];
+
+  for (const app of apps) {
+    const sl = (app.status || '').toLowerCase();
+    if (app.score >= 4.0) scores.high++; else if (app.score >= 3.0) scores.mid++; else scores.low++;
+
+    const cap = app.status.charAt(0).toUpperCase() + app.status.slice(1).toLowerCase();
+    if (byStage.hasOwnProperty(cap)) byStage[cap]++;
+
+    if (activeSet.has(sl) || closedSet.has(sl)) appliedCount++;
+    if (activeSet.has(sl)) activeCount++;
+    if (closedSet.has(sl)) closedCount++;
+
+    const entries = activityMap[app.num] || [];
+    const appliedEntry = entries.find(e => e.event.toLowerCase() === 'applied');
+    const appliedDate  = appliedEntry ? appliedEntry.date : null;
+    if (appliedDate) appliedDates.push(new Date(appliedDate));
+
+    if (activeSet.has(sl)) {
+      const ref = appliedDate || app.date;
+      const ageDays = Math.floor((today - new Date(ref)) / 86400000);
+      openApps.push({ num: app.num, company: app.company, role: app.role, status: app.status, appliedDate: ref, ageDays });
+    }
+  }
+
+  openApps.sort((a, b) => b.ageDays - a.ageDays);
+  appliedDates.sort((a, b) => a - b);
+
+  let weeklyRate = null, weeklyRateSince = null;
+  if (appliedDates.length > 0) {
+    const weeks = Math.max(1, (today - appliedDates[0]) / (7 * 86400000));
+    weeklyRate = (appliedCount / weeks).toFixed(1);
+    weeklyRateSince = appliedDates[0].toISOString().slice(0, 10);
+  }
+
+  return {
+    totals: { evaluated: apps.length, applied: appliedCount, active: activeCount, closed: closedCount },
+    byStage, scores, weeklyRate, weeklyRateSince, openApps,
+  };
+}
+
+function getApplicationInfo(appNum) {
+  const file = path.join(ROOT, 'data', 'applications.md');
+  if (!existsSync(file)) return null;
+  for (const line of readFileSync(file, 'utf-8').split('\n')) {
+    if (!line.startsWith('|')) continue;
+    const cols = line.split('|').map(c => c.trim()).filter(Boolean);
+    if (!cols.length || cols[0] === '#' || /^-+$/.test(cols[0])) continue;
+    if (parseInt(cols[0]) === parseInt(appNum)) {
+      return { num: cols[0], date: cols[1], company: cols[2], role: cols[3], score: cols[4], status: cols[5] };
+    }
+  }
+  return null;
+}
+
+function getActivityLog(appNum) {
+  const file = path.join(ROOT, 'data', 'activity-log.md');
+  if (!existsSync(file)) return [];
+  const entries = [];
+  for (const line of readFileSync(file, 'utf-8').split('\n')) {
+    if (!line.startsWith('|')) continue;
+    const cols = line.split('|').map(c => c.trim()).filter(Boolean);
+    if (cols.length < 4 || cols[0] === '#' || /^-+$/.test(cols[0])) continue;
+    if (parseInt(cols[1]) === parseInt(appNum)) {
+      entries.push({ seq: cols[0], app: cols[1], date: cols[2], event: cols[3], notes: cols[4] || '' });
+    }
+  }
+  return entries;
+}
+
+function appendToActivityLog({ app, event, date, notes }) {
+  const file = path.join(ROOT, 'data', 'activity-log.md');
+  if (!existsSync(file)) {
+    writeFileSync(file, '# Activity Log\n\n| # | App | Date | Event | Notes |\n|---|-----|------|-------|-------|\n', 'utf-8');
+  }
+  const content = readFileSync(file, 'utf-8');
+  let maxSeq = 0;
+  for (const line of content.split('\n')) {
+    if (!line.startsWith('|')) continue;
+    const parts = line.split('|').map(c => c.trim()).filter(Boolean);
+    const n = parseInt(parts[0]);
+    if (!isNaN(n) && n > maxSeq) maxSeq = n;
+  }
+  const safeNotes = (notes || '').replace(/\|/g, '/');
+  writeFileSync(file, content.trimEnd() + '\n| ' + (maxSeq + 1) + ' | ' + app + ' | ' + date + ' | ' + event + ' | ' + safeNotes + ' |\n', 'utf-8');
+}
+
+function updateApplicationStatus(appNum, newStatus) {
+  const file = path.join(ROOT, 'data', 'applications.md');
+  if (!existsSync(file)) return;
+  const lines = readFileSync(file, 'utf-8').split('\n');
+  const updated = lines.map(line => {
+    if (!line.startsWith('|')) return line;
+    const parts = line.split('|');
+    const cols = parts.map(c => c.trim()).filter(Boolean);
+    if (!cols.length || cols[0] === '#' || /^-+$/.test(cols[0])) return line;
+    if (parseInt(cols[0]) !== parseInt(appNum)) return line;
+    // Column layout: | # | Date | Company | Role | Score | Status | PDF | Report | Notes |
+    // parts[0]='' parts[1]=# parts[2]=Date parts[3]=Company parts[4]=Role parts[5]=Score parts[6]=Status
+    parts[6] = ' ' + newStatus + ' ';
+    return parts.join('|');
+  });
+  writeFileSync(file, updated.join('\n'), 'utf-8');
+}
+
 function getReportUrls() {
   const dir = path.join(ROOT, 'reports');
   if (!existsSync(dir)) return [];
@@ -170,6 +302,30 @@ function getReportUrls() {
     } catch { /* skip */ }
   }
   return [...new Set(urls)];
+}
+
+function getUrlMap() {
+  const dir = path.join(ROOT, 'reports');
+  if (!existsSync(dir)) return [];
+  const apps = parseApplications();
+  const byReportNum = {};
+  for (const a of apps) {
+    if (a.reportNum) byReportNum[a.reportNum] = a;
+  }
+  const map = [];
+  for (const f of readdirSync(dir).filter(f => f.endsWith('.md'))) {
+    try {
+      const content = readFileSync(path.join(dir, f), 'utf-8');
+      const urlM = content.match(/\*\*URL:\*\*\s*(https?:\/\/[^\s\n]+)/);
+      if (!urlM) continue;
+      const numM = f.match(/^(\d+)-/);
+      if (!numM) continue;
+      const app = byReportNum[numM[1]];
+      if (!app) continue;
+      map.push({ url: urlM[1], appNum: app.num, company: app.company, role: app.role, status: app.status });
+    } catch { /* skip */ }
+  }
+  return map;
 }
 
 // ── SSE helpers ───────────────────────────────────────────────────
@@ -205,7 +361,7 @@ function setActive(child, label) {
 
 function runStream(shell, req, res, label) {
   res.writeHead(200, SSE_HEADERS);
-  const child = spawn(shell, { shell: true, cwd: ROOT, env: process.env, stdio: ['ignore', 'pipe', 'pipe'] });
+  const child = spawn(shell, { shell: true, cwd: ROOT, env: process.env, stdio: ['ignore', 'pipe', 'pipe'], windowsHide: true });
   setActive(child, label || shell);
   child.stdout.on('data', d => sseWrite(res, d));
   child.stderr.on('data', d => sseWrite(res, d));
@@ -297,6 +453,19 @@ createServer((req, res) => {
     return;
   }
 
+  if (req.method === 'POST' && pathname === '/restart-server') {
+    res.writeHead(200, { 'Content-Type': 'application/json' });
+    res.end(JSON.stringify({ ok: true }));
+    if (activeChild) { try { activeChild.kill('SIGTERM'); } catch {} }
+    setTimeout(() => {
+      spawn('node', ['dashboard.mjs'], {
+        detached: true, stdio: 'ignore', cwd: ROOT,
+      }).unref();
+      process.exit(0);
+    }, 300);
+    return;
+  }
+
   if (req.method === 'POST' && pathname === '/kill') {
     if (activeChild) {
       try { activeChild.kill('SIGTERM'); } catch {}
@@ -340,6 +509,101 @@ createServer((req, res) => {
     return;
   }
 
+  if (pathname === '/stats-data') {
+    res.writeHead(200, { 'Content-Type': 'application/json' });
+    res.end(JSON.stringify(computeStats()));
+    return;
+  }
+
+  if (pathname === '/activity' && req.method === 'GET') {
+    const appNum = new URL(req.url, 'http://localhost').searchParams.get('app');
+    if (!appNum) { res.writeHead(400); res.end('Missing app'); return; }
+    res.writeHead(200, { 'Content-Type': 'application/json' });
+    res.end(JSON.stringify({ baseline: getApplicationInfo(appNum), entries: getActivityLog(appNum) }));
+    return;
+  }
+
+  if (pathname === '/activity' && req.method === 'POST') {
+    let body = '';
+    req.on('data', d => { body += d; });
+    req.on('end', () => {
+      try {
+        const { app, event, date, notes } = JSON.parse(body);
+        if (!app || !event || !date) { res.writeHead(400); res.end('Missing fields'); return; }
+        appendToActivityLog({ app: String(app), event, date, notes: notes || '' });
+        updateApplicationStatus(app, event);
+        res.writeHead(200, { 'Content-Type': 'application/json' });
+        res.end(JSON.stringify({ ok: true }));
+      } catch (e) {
+        res.writeHead(500, { 'Content-Type': 'application/json' });
+        res.end(JSON.stringify({ ok: false, error: e.message }));
+      }
+    });
+    return;
+  }
+
+  if (pathname === '/followup-data') {
+    const child = spawn('node followup-cadence.mjs', {
+      shell: true, cwd: ROOT, env: process.env, stdio: ['ignore', 'pipe', 'pipe'], windowsHide: true,
+    });
+    let out = '';
+    child.stdout.on('data', d => { out += d; });
+    child.on('close', () => {
+      try {
+        const data = JSON.parse(out);
+        res.writeHead(200, { 'Content-Type': 'application/json' });
+        res.end(JSON.stringify(data));
+      } catch {
+        res.writeHead(500, { 'Content-Type': 'application/json' });
+        res.end(JSON.stringify({ error: 'Failed to parse output from followup-cadence.mjs' }));
+      }
+    });
+    return;
+  }
+
+  if (pathname === '/patterns-data') {
+    const child = spawn('node analyze-patterns.mjs', {
+      shell: true, cwd: ROOT, env: process.env, stdio: ['ignore', 'pipe', 'pipe'], windowsHide: true,
+    });
+    let out = '';
+    child.stdout.on('data', d => { out += d; });
+    child.on('close', () => {
+      try {
+        const data = JSON.parse(out);
+        res.writeHead(200, { 'Content-Type': 'application/json' });
+        res.end(JSON.stringify(data));
+      } catch {
+        res.writeHead(500, { 'Content-Type': 'application/json' });
+        res.end(JSON.stringify({ error: 'Failed to parse output from analyze-patterns.mjs' }));
+      }
+    });
+    return;
+  }
+
+  if (pathname === '/url-map') {
+    res.writeHead(200, { 'Content-Type': 'application/json' });
+    res.end(JSON.stringify(getUrlMap()));
+    return;
+  }
+
+  if (req.method === 'POST' && pathname === '/liveness-action') {
+    let body = '';
+    req.on('data', d => { body += d; });
+    req.on('end', () => {
+      try {
+        const { appNum, action } = JSON.parse(body);
+        if (!appNum || action !== 'discard') { res.writeHead(400); res.end('Bad request'); return; }
+        updateApplicationStatus(appNum, 'Discarded');
+        appendToActivityLog({ app: String(appNum), event: 'Discarded', date: new Date().toISOString().slice(0, 10), notes: 'Job posting confirmed expired by liveness check' });
+        res.writeHead(200, { 'Content-Type': 'application/json' });
+        res.end(JSON.stringify({ ok: true }));
+      } catch (e) {
+        res.writeHead(500); res.end(JSON.stringify({ ok: false, error: e.message }));
+      }
+    });
+    return;
+  }
+
   if (pathname === '/run/liveness') {
     const urls = getReportUrls();
     res.writeHead(200, SSE_HEADERS);
@@ -352,7 +616,7 @@ createServer((req, res) => {
     writeFileSync(tmp, urls.join('\n'));
     sseWrite(res, `Checking ${urls.length} URL(s) from reports/...\n\n`);
     const child = spawn('node check-liveness.mjs --file ' + tmp, {
-      shell: true, cwd: ROOT, env: process.env, stdio: ['ignore', 'pipe', 'pipe'],
+      shell: true, cwd: ROOT, env: process.env, stdio: ['ignore', 'pipe', 'pipe'], windowsHide: true,
     });
     setActive(child, 'Liveness Check');
     child.stdout.on('data', d => sseWrite(res, d));

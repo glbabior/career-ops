@@ -135,12 +135,20 @@
   #stop-btn:hover { border-color: var(--red); color: var(--red); }
   #stop-btn.visible { display: flex; align-items: center; gap: 5px; }
 
+  #restart-btn {
+    padding: 4px 10px; font-size: 12px; border-radius: 6px;
+    border: 1px solid var(--border); background: var(--bg3);
+    color: var(--muted); cursor: pointer; white-space: nowrap;
+  }
+  #restart-btn:hover { border-color: var(--accent); color: var(--accent); }
+  #restart-btn:disabled { opacity: .4; cursor: not-allowed; }
+
   /* ── Panel ── */
-  #panel { flex: 1; overflow: hidden; position: relative; }
+  #panel { flex: 1; overflow: hidden; position: relative; display: flex; flex-direction: column; }
 
   /* Terminal */
   #terminal {
-    position: absolute; inset: 0;
+    flex: 1;
     overflow-y: auto;
     padding: 14px 18px;
     font-family: 'Cascadia Code', 'Fira Code', 'JetBrains Mono', Consolas, monospace;
@@ -166,8 +174,12 @@
   @keyframes blink { 50% { opacity: 0; } }
 
   /* Welcome screen */
-  #welcome {
+  /* Non-terminal panels stay absolutely positioned within #panel */
+  #welcome, #table-wrap, #stats-wrap, #patterns-wrap, #followup-wrap, #report-wrap {
     position: absolute; inset: 0;
+  }
+
+  #welcome {
     display: flex; align-items: center; justify-content: center;
     flex-direction: column; gap: 8px;
     color: var(--muted);
@@ -235,7 +247,17 @@
   .status-discarded { color: var(--muted);   border-color: var(--border);        }
   .status-evaluated { color: var(--yellow);  border-color: rgba(210,153,34,.4);  background: rgba(210,153,34,.07);  }
 
-  .table-meta { font-size: 12px; color: var(--muted); margin-bottom: 10px; }
+  .table-meta { font-size: 12px; color: var(--muted); }
+
+  #table-toolbar { display: flex; align-items: center; gap: 10px; margin-bottom: 10px; }
+
+  .filter-btn {
+    padding: 4px 10px; font-size: 12px; border-radius: 6px;
+    border: 1px solid var(--border); background: var(--bg3);
+    color: var(--muted); cursor: pointer; white-space: nowrap;
+  }
+  .filter-btn:hover { border-color: var(--accent); color: var(--text); }
+  .filter-btn.active { border-color: var(--accent); color: var(--accent); background: rgba(88,166,255,.08); }
 
   #score-table tbody tr[data-report-path] { cursor: pointer; }
 
@@ -298,6 +320,204 @@
   .md-table tr:last-child td { border-bottom: none; }
   .md-table tbody tr:hover td { background: rgba(255,255,255,.03); }
 
+  /* Stats view */
+  #stats-wrap { position: absolute; inset: 0; overflow-y: auto; padding: 18px 22px; }
+  #stats-wrap.hidden { display: none; }
+
+  .stats-cards { display: flex; gap: 12px; margin-bottom: 18px; flex-wrap: wrap; }
+  .stat-card { background: var(--bg2); border: 1px solid var(--border); border-radius: 8px; padding: 14px 20px; flex: 1; min-width: 110px; }
+  .stat-card .sv { font-size: 30px; font-weight: 700; line-height: 1; }
+  .stat-card .sl { font-size: 11px; color: var(--muted); text-transform: uppercase; letter-spacing: .07em; margin-top: 4px; }
+
+  .stats-row { display: flex; gap: 14px; margin-bottom: 18px; }
+  .stats-block { background: var(--bg2); border: 1px solid var(--border); border-radius: 8px; padding: 14px 16px; flex: 1; }
+  .stats-block.full { flex: none; width: 100%; }
+  .sb-heading { font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: .07em; color: var(--muted); margin-bottom: 12px; }
+
+  .bar-row { display: flex; align-items: center; gap: 8px; margin-bottom: 8px; font-size: 12px; }
+  .bar-label { width: 70px; color: var(--muted); }
+  .bar-track { flex: 1; height: 6px; background: var(--bg3); border-radius: 3px; overflow: hidden; }
+  .bar-fill { height: 100%; border-radius: 3px; transition: width .3s; }
+  .bar-count { width: 48px; text-align: right; color: var(--muted); }
+
+  .open-row { display: flex; align-items: center; gap: 12px; padding: 8px 0; border-bottom: 1px solid var(--border); font-size: 13px; }
+  .open-row:last-child { border-bottom: none; }
+  .open-info { flex: 1; min-width: 0; }
+  .open-company { font-weight: 500; }
+  .open-role { color: var(--muted); font-size: 12px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .open-age { font-size: 12px; white-space: nowrap; color: var(--muted); }
+  .open-age.warn { color: var(--yellow); }
+  .open-age.stale { color: var(--red); }
+  .stats-note { font-size: 12px; color: var(--muted); margin-top: 10px; }
+
+  /* Follow-up view */
+  #followup-wrap { position: absolute; inset: 0; overflow-y: auto; padding: 18px 22px; }
+  #followup-wrap.hidden { display: none; }
+
+  .fu-cards { display: flex; gap: 10px; margin-bottom: 18px; flex-wrap: wrap; }
+  .fu-card { background: var(--bg2); border: 1px solid var(--border); border-radius: 8px; padding: 12px 18px; flex: 1; min-width: 90px; text-align: center; }
+  .fu-card .fv { font-size: 26px; font-weight: 700; line-height: 1; }
+  .fu-card .fl { font-size: 11px; color: var(--muted); text-transform: uppercase; letter-spacing: .07em; margin-top: 3px; }
+
+  .fu-table { width: 100%; border-collapse: collapse; font-size: 13px; }
+  .fu-table thead th { text-align: left; padding: 6px 10px; font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: .06em; color: var(--muted); border-bottom: 1px solid var(--border); position: sticky; top: 0; background: var(--bg); }
+  .fu-table tbody tr { border-bottom: 1px solid var(--border); transition: background .1s; }
+  .fu-table tbody tr:hover { background: var(--bg2); }
+  .fu-table td { padding: 8px 10px; vertical-align: middle; }
+
+  .urgency-badge { display: inline-block; padding: 2px 8px; border-radius: 10px; font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: .04em; }
+  .urgency-urgent  { background: rgba(248,81,73,.15);  color: var(--red);    border: 1px solid rgba(248,81,73,.35); }
+  .urgency-overdue { background: rgba(210,153,34,.15); color: var(--yellow); border: 1px solid rgba(210,153,34,.35); }
+  .urgency-waiting { background: rgba(88,166,255,.08); color: var(--accent); border: 1px solid rgba(88,166,255,.25); }
+  .urgency-cold    { background: var(--bg3); color: var(--muted); border: 1px solid var(--border); }
+
+  .fu-next-overdue { color: var(--red); font-weight: 600; }
+  .fu-next-soon    { color: var(--yellow); }
+  .fu-empty { color: var(--muted); font-size: 13px; text-align: center; padding: 32px 0; }
+
+  /* Patterns view */
+  #patterns-wrap { position: absolute; inset: 0; overflow-y: auto; padding: 18px 22px; }
+  #patterns-wrap.hidden { display: none; }
+
+  .patterns-section { margin-bottom: 18px; }
+  .patterns-section .sb-heading { margin-bottom: 10px; }
+
+  .rec-list { display: flex; flex-direction: column; gap: 8px; }
+  .rec-card {
+    background: var(--bg2); border: 1px solid var(--border); border-radius: 8px;
+    padding: 12px 14px; display: flex; gap: 12px; align-items: flex-start;
+  }
+  .rec-card.impact-high  { border-left: 3px solid var(--red); }
+  .rec-card.impact-medium { border-left: 3px solid var(--yellow); }
+  .rec-impact {
+    font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: .06em;
+    padding: 2px 6px; border-radius: 4px; white-space: nowrap; margin-top: 1px; flex-shrink: 0;
+  }
+  .rec-impact.high   { background: rgba(248,81,73,.15);  color: var(--red); }
+  .rec-impact.medium { background: rgba(210,153,34,.15); color: var(--yellow); }
+  .rec-body { flex: 1; min-width: 0; }
+  .rec-action  { font-size: 13px; font-weight: 500; margin-bottom: 3px; }
+  .rec-reason  { font-size: 12px; color: var(--muted); line-height: 1.5; }
+
+  .funnel-row { display: flex; align-items: center; gap: 8px; margin-bottom: 7px; font-size: 12px; }
+  .funnel-label { width: 90px; color: var(--muted); text-transform: capitalize; }
+  .funnel-track { flex: 1; height: 8px; background: var(--bg3); border-radius: 4px; overflow: hidden; }
+  .funnel-fill  { height: 100%; border-radius: 4px; }
+  .funnel-count { width: 60px; text-align: right; color: var(--muted); }
+  .funnel-pct   { width: 36px; text-align: right; font-size: 11px; color: var(--muted); }
+
+  .score-compare-table { width: 100%; font-size: 12px; border-collapse: collapse; }
+  .score-compare-table th { text-align: left; padding: 4px 10px; font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: .06em; color: var(--muted); border-bottom: 1px solid var(--border); }
+  .score-compare-table td { padding: 6px 10px; border-bottom: 1px solid var(--border); }
+  .score-compare-table tr:last-child td { border-bottom: none; }
+
+  .threshold-box {
+    background: var(--bg2); border: 1px solid rgba(88,166,255,.3); border-radius: 8px;
+    padding: 12px 16px; display: flex; align-items: center; gap: 14px;
+  }
+  .threshold-num { font-size: 32px; font-weight: 700; color: var(--accent); line-height: 1; flex-shrink: 0; }
+  .threshold-label { font-size: 11px; color: var(--muted); text-transform: uppercase; letter-spacing: .06em; }
+  .threshold-reason { font-size: 12px; color: var(--muted); margin-top: 4px; line-height: 1.5; }
+
+  .gap-pill { display: inline-flex; align-items: center; gap: 6px; background: var(--bg2); border: 1px solid var(--border); border-radius: 6px; padding: 4px 10px; font-size: 12px; margin: 3px; }
+  .gap-pill-count { font-size: 11px; font-weight: 700; color: var(--red); }
+
+  .patterns-error { color: var(--yellow); font-size: 13px; padding: 20px 0; text-align: center; }
+
+  /* Status panel */
+  #panel-overlay {
+    position: fixed; inset: 0;
+    background: rgba(0,0,0,.45);
+    z-index: 99; display: none;
+  }
+  #panel-overlay.open { display: block; }
+
+  #status-panel {
+    position: fixed; top: 0; right: 0;
+    width: 400px; height: 100vh;
+    background: var(--bg2);
+    border-left: 1px solid var(--border);
+    z-index: 100; display: flex; flex-direction: column;
+    transform: translateX(100%);
+    transition: transform .2s ease;
+  }
+  #status-panel.open { transform: translateX(0); }
+
+  #sp-header {
+    display: flex; align-items: flex-start; gap: 8px;
+    padding: 14px 16px; border-bottom: 1px solid var(--border); flex-shrink: 0;
+  }
+  #sp-title { flex: 1; }
+  #sp-company { font-size: 13px; font-weight: 600; }
+  #sp-role { font-size: 12px; color: var(--muted); margin-top: 2px; }
+  #sp-close { background: none; border: none; color: var(--muted); cursor: pointer; font-size: 18px; line-height: 1; padding: 0; flex-shrink: 0; }
+  #sp-close:hover { color: var(--text); }
+
+  #sp-log { flex: 1; overflow-y: auto; padding: 12px 16px; }
+  .sp-empty { font-size: 12px; color: var(--muted); text-align: center; padding: 24px 0; }
+  .sp-event { margin-bottom: 12px; padding-bottom: 12px; border-bottom: 1px solid var(--border); }
+  .sp-event:last-child { border-bottom: none; margin-bottom: 0; }
+  .sp-event-meta { display: flex; align-items: center; gap: 8px; margin-bottom: 4px; }
+  .sp-event-date { font-size: 11px; color: var(--muted); }
+  .sp-event-notes { font-size: 12px; color: var(--muted); line-height: 1.5; }
+
+  #sp-form {
+    border-top: 1px solid var(--border);
+    padding: 14px 16px; flex-shrink: 0; background: var(--bg);
+  }
+  #sp-form-title { font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: .06em; color: var(--muted); margin-bottom: 10px; }
+  .sp-row { display: flex; gap: 8px; margin-bottom: 8px; }
+  #sp-event-select, #sp-date-input {
+    background: var(--bg2); border: 1px solid var(--border);
+    color: var(--text); border-radius: 6px; padding: 5px 8px; font-size: 12px; flex: 1;
+  }
+  #sp-notes-input {
+    width: 100%; background: var(--bg2); border: 1px solid var(--border);
+    color: var(--text); border-radius: 6px; padding: 6px 8px; font-size: 12px;
+    resize: vertical; min-height: 54px; font-family: inherit; margin-bottom: 8px; display: block;
+  }
+  #sp-save-btn {
+    width: 100%; padding: 7px; border-radius: 6px;
+    background: var(--accent); color: #000; border: none;
+    font-size: 12px; font-weight: 600; cursor: pointer;
+  }
+  #sp-save-btn:hover { opacity: .88; }
+  #sp-save-btn:disabled { opacity: .4; cursor: not-allowed; }
+
+  #log-activity-btn {
+    padding: 4px 12px; font-size: 12px; border-radius: 6px;
+    border: 1px solid var(--border); background: var(--bg3); color: var(--text); cursor: pointer;
+  }
+  #log-activity-btn:hover { border-color: var(--accent); color: var(--accent); }
+  .history-btn {
+    padding: 2px 8px; font-size: 11px; border-radius: 10px;
+    border: 1px solid var(--border); background: var(--bg3);
+    color: var(--muted); cursor: pointer; white-space: nowrap;
+  }
+  .history-btn:hover { border-color: var(--accent); color: var(--accent); }
+
+  /* Liveness action panel */
+  #liveness-actions {
+    border-top: 1px solid var(--border);
+    padding: 14px 18px;
+    background: var(--bg2);
+    flex-shrink: 0;
+    display: none;
+  }
+  #liveness-actions.visible { display: block; }
+  .la-heading { font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: .07em; color: var(--muted); margin-bottom: 10px; }
+  .la-row { display: flex; align-items: center; gap: 10px; padding: 6px 0; border-bottom: 1px solid var(--border); font-size: 13px; }
+  .la-row:last-child { border-bottom: none; }
+  .la-info { flex: 1; min-width: 0; }
+  .la-company { font-weight: 500; }
+  .la-role { font-size: 12px; color: var(--muted); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .la-reason { font-size: 11px; color: var(--muted); margin-top: 1px; }
+  .la-btn { padding: 3px 10px; font-size: 12px; border-radius: 6px; border: 1px solid var(--border); background: var(--bg3); color: var(--text); cursor: pointer; white-space: nowrap; flex-shrink: 0; }
+  .la-btn:hover { border-color: var(--accent); color: var(--accent); }
+  .la-btn.danger:hover { border-color: var(--red); color: var(--red); }
+  .la-btn:disabled { opacity: .4; cursor: not-allowed; }
+  .la-done { font-size: 12px; color: var(--muted); padding: 3px 10px; }
+
   /* Scrollbar */
   ::-webkit-scrollbar { width: 6px; }
   ::-webkit-scrollbar-track { background: transparent; }
@@ -323,6 +543,7 @@
         <div id="cmd-title">Career-Ops Dashboard</div>
         <div id="cmd-desc">Select a command from the sidebar</div>
       </div>
+      <button id="restart-btn" onclick="restartServer()" title="Restart dashboard server">↺ Restart</button>
       <button id="stop-btn" onclick="killServer()"><span id="stop-label">Stop</span></button>
       <div id="status-badge">idle</div>
     </div>
@@ -337,17 +558,52 @@
         <div id="terminal-output"></div>
         <span id="cursor" class="cursor hidden"></span>
       </div>
+      <div id="liveness-actions">
+        <div class="la-heading">Suggested Actions</div>
+        <div id="liveness-action-rows"></div>
+      </div>
+
+      <div id="followup-wrap" class="hidden">
+        <div id="followup-content"></div>
+      </div>
+
+      <div id="patterns-wrap" class="hidden">
+        <div id="patterns-content"></div>
+      </div>
+
+      <div id="stats-wrap" class="hidden">
+        <div class="stats-cards" id="stats-cards"></div>
+        <div class="stats-row">
+          <div class="stats-block" id="stats-stage-block">
+            <div class="sb-heading">By Stage</div>
+            <div id="stats-stage"></div>
+          </div>
+          <div class="stats-block" id="stats-score-block">
+            <div class="sb-heading">Score Distribution</div>
+            <div id="stats-scores"></div>
+            <div class="stats-note" id="stats-rate"></div>
+          </div>
+        </div>
+        <div class="stats-block" id="stats-open-block">
+          <div class="sb-heading">Open Applications</div>
+          <div id="stats-open"></div>
+        </div>
+      </div>
 
       <div id="report-wrap" class="hidden">
         <div id="report-toolbar">
           <button id="back-btn" onclick="backToTable()">← Score Table</button>
+          <button id="log-activity-btn" onclick="openActivityFromReport()">+ Log Activity</button>
           <span id="report-label"></span>
         </div>
         <div id="report-content"></div>
       </div>
 
       <div id="table-wrap" class="hidden">
-        <div class="table-meta" id="table-meta"></div>
+        <div id="table-toolbar">
+          <div class="table-meta" id="table-meta" style="flex:1"></div>
+          <button class="filter-btn" id="hide-rejected-btn" onclick="toggleHideRejected()">Hide Rejected</button>
+        </div>
         <table id="score-table">
           <thead>
             <tr>
@@ -357,7 +613,7 @@
               <th>Role</th>
               <th>Status</th>
               <th>Date</th>
-              <th>Report</th>
+              <th>Report / History</th>
             </tr>
           </thead>
           <tbody id="table-body"></tbody>
@@ -439,12 +695,13 @@
     setActive(cmd.id);
     setTitle(cmd.icon + ' ' + cmd.label, cmd.description || '');
 
-    if (cmd.type === 'table') {
-      showTable();
-      return;
-    }
+    if (cmd.type === 'table')    { showTable();    return; }
+    if (cmd.type === 'stats')    { showStats();    return; }
+    if (cmd.type === 'patterns') { showPatterns(); return; }
+    if (cmd.type === 'followup') { showFollowup(); return; }
     showTerminal();
     clearOutput();
+    appendLine('▶ ' + cmd.label + '\n');
     setStatus('running');
     showCursor(true);
     showStop(true);
@@ -453,8 +710,15 @@
     var es  = new EventSource(url);
     currentES = es;
 
+    var isLiveness = (cmd.id === 'liveness');
+    var livenessResults = [];
+
     es.onmessage = function(e) {
       appendLine(e.data);
+      if (isLiveness) {
+        var m = e.data.match(/(✅|❌|⚠️)\s+(active|expired|uncertain)\s+(https?:\/\/\S+)/);
+        if (m) livenessResults.push({ status: m[2], url: m[3] });
+      }
     };
     es.addEventListener('done', function() {
       es.close();
@@ -463,6 +727,9 @@
       showStop(false);
       setStatus('done');
       refreshPipelineBadge();
+      if (isLiveness && livenessResults.some(function(r) { return r.status !== 'active'; })) {
+        showLivenessActions(livenessResults);
+      }
     });
     es.onerror = function() {
       if (es.readyState === EventSource.CLOSED) return;
@@ -474,6 +741,97 @@
       appendLine('[connection lost]');
     };
   };
+
+  function showLivenessActions(results) {
+    var actionable = results.filter(function(r) { return r.status !== 'active'; });
+    if (!actionable.length) return;
+    fetch('/url-map')
+      .then(function(r) { return r.json(); })
+      .then(function(urlMap) {
+        var container = document.getElementById('liveness-action-rows');
+        container.innerHTML = '';
+        actionable.forEach(function(r) {
+          var entry = null;
+          for (var i = 0; i < urlMap.length; i++) {
+            if (urlMap[i].url === r.url) { entry = urlMap[i]; break; }
+          }
+          var row = document.createElement('div');
+          row.className = 'la-row';
+
+          var info = document.createElement('div');
+          info.className = 'la-info';
+          var shortUrl = r.url.length > 65 ? r.url.slice(0, 64) + '…' : r.url;
+          var statusLabel = r.status === 'expired' ? '❌ expired' : '⚠️ uncertain';
+          if (entry) {
+            info.innerHTML =
+              '<div class="la-company">' + esc(entry.company) + '</div>' +
+              '<div class="la-role">' + esc(entry.role) + '</div>' +
+              '<div class="la-reason">' + statusLabel + ' · ' + esc(shortUrl) + '</div>';
+          } else {
+            info.innerHTML =
+              '<div class="la-company" style="color:var(--muted)">No matching application found</div>' +
+              '<div class="la-reason">' + statusLabel + ' · ' + esc(shortUrl) + '</div>';
+          }
+          row.appendChild(info);
+
+          if (entry) {
+            var discardBtn = document.createElement('button');
+            discardBtn.className = 'la-btn danger';
+            discardBtn.textContent = 'Mark Discarded';
+            (function(btn, appNum, rowEl) {
+              btn.addEventListener('click', function() { laDiscard(btn, appNum, rowEl); });
+            })(discardBtn, entry.appNum, row);
+            row.appendChild(discardBtn);
+
+            if (r.status === 'uncertain') {
+              var keepBtn = document.createElement('button');
+              keepBtn.className = 'la-btn';
+              keepBtn.textContent = 'Keep Active';
+              (function(btn, rowEl) {
+                btn.addEventListener('click', function() { laMarkDone(rowEl, '✓ Kept active'); });
+              })(keepBtn, row);
+              row.appendChild(keepBtn);
+            }
+          }
+          container.appendChild(row);
+        });
+        if (container.children.length) {
+          document.getElementById('liveness-actions').classList.add('visible');
+        }
+      })
+      .catch(function() {});
+  }
+
+  function laDiscard(btn, appNum, row) {
+    btn.disabled = true;
+    btn.textContent = 'Saving…';
+    fetch('/liveness-action', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ appNum: appNum, action: 'discard' })
+    })
+    .then(function(r) { return r.json(); })
+    .then(function(d) {
+      if (d.ok) {
+        laMarkDone(row, '✓ Marked discarded');
+      } else {
+        btn.disabled = false;
+        btn.textContent = 'Mark Discarded';
+      }
+    })
+    .catch(function() {
+      btn.disabled = false;
+      btn.textContent = 'Mark Discarded';
+    });
+  }
+
+  function laMarkDone(row, label) {
+    row.querySelectorAll('button').forEach(function(b) { b.style.display = 'none'; });
+    var done = document.createElement('span');
+    done.className = 'la-done';
+    done.textContent = label;
+    row.appendChild(done);
+  }
 
   window.stopRun = function() {
     if (currentES) { currentES.close(); currentES = null; }
@@ -498,6 +856,17 @@
       .catch(function() {});
   };
 
+  window.restartServer = function() {
+    var btn = document.getElementById('restart-btn');
+    btn.disabled = true;
+    btn.textContent = 'Restarting…';
+    fetch('/restart-server', { method: 'POST' })
+      .catch(function() {})
+      .finally(function() {
+        setTimeout(function() { location.reload(); }, 1500);
+      });
+  };
+
   // Poll server process status every 2s so Stop button reflects reality across refreshes
   function pollProcStatus() {
     fetch('/proc-status')
@@ -520,8 +889,7 @@
   // ── Table view ───────────────────────────────────────────────────
   function showTable() {
     setStatus('running');
-    document.getElementById('welcome').classList.add('hidden');
-    document.getElementById('terminal').classList.add('hidden');
+    hideAllPanels();
     var wrap = document.getElementById('table-wrap');
     wrap.classList.remove('hidden');
     document.getElementById('table-body').innerHTML = '';
@@ -558,14 +926,19 @@
       else if (statusLower === 'discarded') statusClass += ' status-discarded';
       else if (statusLower === 'evaluated') statusClass += ' status-evaluated';
 
+      tr.dataset.appNum  = r.num;
+      tr.dataset.company = r.company;
+      tr.dataset.role    = r.role;
+      tr.dataset.status  = statusLower;
       if (r.reportPath) {
         tr.dataset.reportPath  = r.reportPath;
         tr.dataset.reportLabel = r.company + ' — ' + r.role;
       }
 
-      var reportCell = r.reportPath
+      var reportNum = r.reportPath
         ? '<span style="color:var(--accent);font-size:12px;font-weight:500">' + (r.reportNum || '#') + '</span>'
         : '';
+      var historyBtn = '<button class="history-btn" data-panel-trigger="1" style="margin-left:' + (reportNum ? '8px' : '0') + '">History</button>';
 
       tr.innerHTML =
         '<td style="color:var(--muted);font-size:12px">' + (i + 1) + '</td>' +
@@ -574,7 +947,7 @@
         '<td style="color:var(--muted)">' + esc(r.role) + '</td>' +
         '<td><span class="' + statusClass + '">' + esc(r.status) + '</span></td>' +
         '<td style="color:var(--muted);font-size:12px;white-space:nowrap">' + esc(r.date) + '</td>' +
-        '<td>' + reportCell + '</td>';
+        '<td style="white-space:nowrap">' + reportNum + historyBtn + '</td>';
 
       tbody.appendChild(tr);
     });
@@ -584,21 +957,62 @@
       tr.innerHTML = '<td colspan="7" style="color:var(--muted);text-align:center;padding:24px">No applications found in applications.md</td>';
       tbody.appendChild(tr);
     }
+    applyRejectedFilter();
   }
 
-  // Row-click delegation — open report in dashboard panel
+  var hideRejected = false;
+
+  window.toggleHideRejected = function() {
+    hideRejected = !hideRejected;
+    var btn = document.getElementById('hide-rejected-btn');
+    btn.textContent = hideRejected ? 'Show Rejected' : 'Hide Rejected';
+    btn.classList.toggle('active', hideRejected);
+    applyRejectedFilter();
+  };
+
+  function applyRejectedFilter() {
+    var rows = document.querySelectorAll('#table-body tr');
+    var visible = 0;
+    rows.forEach(function(tr) {
+      var s = tr.dataset.status || '';
+      var hide = hideRejected && (s === 'rejected' || s === 'discarded');
+      tr.style.display = hide ? 'none' : '';
+      if (!hide) visible++;
+    });
+    var meta = document.getElementById('table-meta');
+    if (hideRejected) {
+      meta.textContent = visible + ' of ' + rows.length + ' applications shown — rejected & discarded hidden';
+    } else {
+      meta.textContent = rows.length + ' applications, sorted by match score';
+    }
+  }
+
+  // Row-click delegation — history button → activity panel, row → report
   document.getElementById('table-body').addEventListener('click', function(e) {
-    if (e.target.tagName === 'A' || e.target.tagName === 'BUTTON') return;
+    if (e.target.tagName === 'A') return;
     var tr = e.target.closest('tr');
-    if (!tr || !tr.dataset.reportPath) return;
-    showReport(tr.dataset.reportPath, tr.dataset.reportLabel);
+    if (!tr || !tr.dataset.appNum) return;
+    if (e.target.closest('[data-panel-trigger]')) {
+      openStatusPanel(tr.dataset.appNum, tr.dataset.company, tr.dataset.role);
+      return;
+    }
+    if (e.target.tagName === 'BUTTON') return;
+    if (tr.dataset.reportPath) {
+      showReport(tr.dataset.reportPath, tr.dataset.reportLabel, tr.dataset.appNum);
+    }
   });
 
   // ── Report view ───────────────────────────────────────────────────
-  function showReport(reportPath, label) {
-    document.getElementById('welcome').classList.add('hidden');
-    document.getElementById('terminal').classList.add('hidden');
-    document.getElementById('table-wrap').classList.add('hidden');
+  var currentReportAppNum = null;
+
+  function appNumFromReportPath(p) {
+    var m = p && p.match(/[\/\\](\d+)-/);
+    return m ? parseInt(m[1], 10) : null;
+  }
+
+  function showReport(reportPath, label, appNum) {
+    currentReportAppNum = appNum != null ? parseInt(appNum) : appNumFromReportPath(reportPath);
+    hideAllPanels();
     document.getElementById('report-wrap').classList.remove('hidden');
     document.getElementById('report-label').textContent = label || '';
     document.getElementById('report-content').innerHTML = '<span style="color:var(--muted)">Loading…</span>';
@@ -618,11 +1032,439 @@
   }
 
   window.backToTable = function() {
-    document.getElementById('report-wrap').classList.add('hidden');
+    hideAllPanels();
     document.getElementById('table-wrap').classList.remove('hidden');
     setActive('table');
     setTitle('📊 Score Table', 'All evaluated jobs sorted by match score');
     setStatus('done');
+  };
+
+  // ── Stats view ────────────────────────────────────────────────────
+  function showStats() {
+    hideAllPanels();
+    document.getElementById('stats-wrap').classList.remove('hidden');
+    setStatus('running');
+    fetch('/stats-data')
+      .then(function(r) { return r.json(); })
+      .then(function(d) { renderStats(d); setStatus('done'); })
+      .catch(function() { setStatus('error'); });
+  }
+
+  function renderStats(d) {
+    var t = d.totals;
+
+    // Summary cards
+    var cards = [
+      { label: 'Evaluated', value: t.evaluated, color: 'var(--muted)' },
+      { label: 'Applied',   value: t.applied,   color: 'var(--accent)' },
+      { label: 'Active',    value: t.active,     color: 'var(--green)' },
+      { label: 'Closed',    value: t.closed,     color: 'var(--red)' },
+    ];
+    document.getElementById('stats-cards').innerHTML = cards.map(function(c) {
+      return '<div class="stat-card"><div class="sv" style="color:' + c.color + '">' + c.value + '</div><div class="sl">' + c.label + '</div></div>';
+    }).join('');
+
+    // By Stage bars
+    var stageOrder = ['Applied','Responded','Interview','Offer','Rejected','Discarded'];
+    var stageColors = { Applied: 'var(--accent)', Responded: 'var(--accent)', Interview: 'var(--green)', Offer: 'var(--purple)', Rejected: 'var(--red)', Discarded: 'var(--muted)' };
+    var maxStage = Math.max(1, Math.max.apply(null, stageOrder.map(function(s) { return d.byStage[s] || 0; })));
+    document.getElementById('stats-stage').innerHTML = stageOrder.map(function(s) {
+      var n = d.byStage[s] || 0;
+      var pct = Math.round(n / maxStage * 100);
+      return '<div class="bar-row"><span class="bar-label">' + s + '</span>' +
+        '<div class="bar-track"><div class="bar-fill" style="width:' + pct + '%;background:' + stageColors[s] + '"></div></div>' +
+        '<span class="bar-count">' + n + '</span></div>';
+    }).join('');
+
+    // Score distribution bars
+    var total = t.evaluated || 1;
+    var scoreBands = [
+      { label: '4.0+',   key: 'high', color: 'var(--green)' },
+      { label: '3.0–3.9', key: 'mid',  color: 'var(--yellow)' },
+      { label: '<3.0',   key: 'low',  color: 'var(--red)' },
+    ];
+    document.getElementById('stats-scores').innerHTML = scoreBands.map(function(b) {
+      var n = d.scores[b.key] || 0;
+      var pct = Math.round(n / total * 100);
+      return '<div class="bar-row"><span class="bar-label">' + b.label + '</span>' +
+        '<div class="bar-track"><div class="bar-fill" style="width:' + pct + '%;background:' + b.color + '"></div></div>' +
+        '<span class="bar-count">' + n + ' <span style="color:var(--muted);font-size:11px">(' + pct + '%)</span></span></div>';
+    }).join('');
+    document.getElementById('stats-rate').textContent = d.weeklyRate != null
+      ? d.weeklyRate + ' applications/week (since ' + d.weeklyRateSince + ')'
+      : 'No applications yet';
+
+    // Open applications
+    var openEl = document.getElementById('stats-open');
+    if (!d.openApps.length) {
+      openEl.innerHTML = '<div style="color:var(--muted);font-size:12px;padding:8px 0">No active applications.</div>';
+    } else {
+      openEl.innerHTML = d.openApps.map(function(a) {
+        var ageClass = a.ageDays > 30 ? 'open-age stale' : a.ageDays > 14 ? 'open-age warn' : 'open-age';
+        var ageLabel = a.ageDays === 0 ? 'today' : a.ageDays + ' day' + (a.ageDays !== 1 ? 's' : '');
+        return '<div class="open-row">' +
+          '<div class="open-info"><div class="open-company">' + esc(a.company) + '</div>' +
+          '<div class="open-role">' + esc(a.role) + '</div></div>' +
+          '<span class="' + statusChipClass(a.status) + '">' + esc(a.status) + '</span>' +
+          '<span class="' + ageClass + '">' + ageLabel + '</span>' +
+          '</div>';
+      }).join('');
+    }
+  }
+
+  // ── Follow-up view ────────────────────────────────────────────────
+  function showFollowup() {
+    hideAllPanels();
+    document.getElementById('followup-wrap').classList.remove('hidden');
+    document.getElementById('followup-content').innerHTML = '<div class="fu-empty">Loading…</div>';
+    setStatus('running');
+    fetch('/followup-data')
+      .then(function(r) { return r.json(); })
+      .then(function(d) { renderFollowup(d); setStatus('done'); })
+      .catch(function() {
+        document.getElementById('followup-content').innerHTML = '<div class="fu-empty" style="color:var(--red)">Failed to load follow-up data.</div>';
+        setStatus('error');
+      });
+  }
+
+  function renderFollowup(d) {
+    var el = document.getElementById('followup-content');
+    if (d.error) {
+      el.innerHTML = '<div class="fu-empty">' + esc(d.error) + '</div>';
+      return;
+    }
+    var m = d.metadata;
+    var html = '';
+
+    // Summary cards
+    var cards = [
+      { label: 'Urgent',  value: m.urgent,  color: 'var(--red)' },
+      { label: 'Overdue', value: m.overdue, color: 'var(--yellow)' },
+      { label: 'Waiting', value: m.waiting, color: 'var(--accent)' },
+      { label: 'Cold',    value: m.cold,    color: 'var(--muted)' },
+    ];
+    html += '<div class="fu-cards">';
+    cards.forEach(function(c) {
+      html += '<div class="fu-card"><div class="fv" style="color:' + c.color + '">' + c.value + '</div><div class="fl">' + esc(c.label) + '</div></div>';
+    });
+    html += '</div>';
+
+    if (!d.entries || !d.entries.length) {
+      html += '<div class="fu-empty">No active applications to track.</div>';
+      el.innerHTML = html;
+      return;
+    }
+
+    html += '<table class="fu-table"><thead><tr>' +
+      '<th>Urgency</th><th>#</th><th>Company</th><th>Role</th><th>Status</th>' +
+      '<th>Age (d)</th><th>F/U</th><th>Next follow-up</th>' +
+      '</tr></thead><tbody>';
+
+    d.entries.forEach(function(e) {
+      var urg = e.urgency || 'waiting';
+      var urgBadge = '<span class="urgency-badge urgency-' + urg + '">' + urg + '</span>';
+
+      var nextStr = '—';
+      var nextClass = '';
+      if (e.nextFollowupDate) {
+        if (e.daysUntilNext !== null && e.daysUntilNext < 0) {
+          nextStr = e.nextFollowupDate + ' (' + Math.abs(e.daysUntilNext) + 'd overdue)';
+          nextClass = 'fu-next-overdue';
+        } else if (e.daysUntilNext !== null && e.daysUntilNext <= 2) {
+          nextStr = e.nextFollowupDate + ' (in ' + e.daysUntilNext + 'd)';
+          nextClass = 'fu-next-soon';
+        } else {
+          nextStr = e.nextFollowupDate + (e.daysUntilNext !== null ? ' (in ' + e.daysUntilNext + 'd)' : '');
+        }
+      } else if (urg === 'cold') {
+        nextStr = 'Max follow-ups reached';
+      }
+
+      html += '<tr>' +
+        '<td>' + urgBadge + '</td>' +
+        '<td style="color:var(--muted);font-size:12px">' + esc(String(e.num)) + '</td>' +
+        '<td style="font-weight:500">' + esc(e.company) + '</td>' +
+        '<td style="color:var(--muted);font-size:12px;max-width:220px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap" title="' + esc(e.role) + '">' + esc(e.role) + '</td>' +
+        '<td><span class="' + statusChipClass(e.status) + '">' + esc(e.status) + '</span></td>' +
+        '<td style="color:var(--muted);font-size:12px">' + e.daysSinceApplication + '</td>' +
+        '<td style="color:var(--muted);font-size:12px;text-align:center">' + e.followupCount + '</td>' +
+        '<td class="' + nextClass + '" style="font-size:12px">' + esc(nextStr) + '</td>' +
+        '</tr>';
+    });
+
+    html += '</tbody></table>';
+    el.innerHTML = html;
+  }
+
+  // ── Patterns view ─────────────────────────────────────────────────
+  function showPatterns() {
+    hideAllPanels();
+    document.getElementById('patterns-wrap').classList.remove('hidden');
+    document.getElementById('patterns-content').innerHTML = '<div class="patterns-error">Loading…</div>';
+    setStatus('running');
+    fetch('/patterns-data')
+      .then(function(r) { return r.json(); })
+      .then(function(d) { renderPatterns(d); setStatus('done'); })
+      .catch(function() {
+        document.getElementById('patterns-content').innerHTML = '<div class="patterns-error">Failed to load pattern data.</div>';
+        setStatus('error');
+      });
+  }
+
+  function renderPatterns(d) {
+    var el = document.getElementById('patterns-content');
+    if (d.error) {
+      el.innerHTML = '<div class="patterns-error">' + esc(d.error) + '</div>';
+      return;
+    }
+
+    var html = '';
+    var m = d.metadata;
+
+    // ── Header ──
+    html += '<div style="margin-bottom:18px">' +
+      '<div style="font-size:15px;font-weight:600;margin-bottom:4px">Pattern Analysis</div>' +
+      '<div style="font-size:12px;color:var(--muted)">' + m.total + ' applications · ' +
+        m.dateRange.from + ' to ' + m.dateRange.to + ' · ' +
+        m.byOutcome.positive + ' positive, ' + m.byOutcome.negative + ' rejected, ' +
+        m.byOutcome.pending + ' pending' +
+      '</div></div>';
+
+    // ── Recommendations ──
+    if (d.recommendations && d.recommendations.length) {
+      html += '<div class="patterns-section"><div class="sb-heading">Recommendations</div><div class="rec-list">';
+      d.recommendations.forEach(function(r) {
+        html += '<div class="rec-card impact-' + esc(r.impact) + '">' +
+          '<span class="rec-impact ' + esc(r.impact) + '">' + esc(r.impact) + '</span>' +
+          '<div class="rec-body"><div class="rec-action">' + esc(r.action) + '</div>' +
+          '<div class="rec-reason">' + esc(r.reasoning) + '</div></div></div>';
+      });
+      html += '</div></div>';
+    }
+
+    // ── Two-column row: Funnel + Score comparison ──
+    html += '<div style="display:flex;gap:14px;margin-bottom:18px">';
+
+    // Funnel
+    var funnelOrder = ['evaluated','applied','responded','interview','offer','rejected','discarded'];
+    var funnelColors = { evaluated:'var(--muted)', applied:'var(--accent)', responded:'var(--accent)',
+      interview:'var(--green)', offer:'var(--purple)', rejected:'var(--red)', discarded:'var(--muted)' };
+    var funnelMax = Math.max(1, Math.max.apply(null, funnelOrder.map(function(s){ return d.funnel[s]||0; })));
+    html += '<div class="stats-block" style="flex:1"><div class="sb-heading">Conversion Funnel</div>';
+    funnelOrder.forEach(function(s) {
+      var n = d.funnel[s] || 0;
+      if (!n) return;
+      var pct = Math.round(n / funnelMax * 100);
+      var pctOfTotal = Math.round(n / m.total * 100);
+      html += '<div class="funnel-row">' +
+        '<span class="funnel-label">' + s + '</span>' +
+        '<div class="funnel-track"><div class="funnel-fill" style="width:' + pct + '%;background:' + funnelColors[s] + '"></div></div>' +
+        '<span class="funnel-count">' + n + '</span>' +
+        '<span class="funnel-pct">' + pctOfTotal + '%</span></div>';
+    });
+    html += '</div>';
+
+    // Score comparison
+    html += '<div class="stats-block" style="flex:1"><div class="sb-heading">Score by Outcome</div>' +
+      '<table class="score-compare-table"><thead><tr><th>Outcome</th><th>Avg</th><th>Range</th><th>N</th></tr></thead><tbody>';
+    var outcomeOrder = [['positive','Progressed','var(--green)'],['negative','Rejected','var(--red)'],['pending','Pending','var(--muted)']];
+    outcomeOrder.forEach(function(row) {
+      var key = row[0], label = row[1], color = row[2];
+      var s = d.scoreComparison[key];
+      if (!s || !s.count) return;
+      html += '<tr><td style="color:' + color + '">' + label + '</td>' +
+        '<td style="font-weight:600">' + s.avg + '</td>' +
+        '<td style="color:var(--muted)">' + s.min + '–' + s.max + '</td>' +
+        '<td style="color:var(--muted)">' + s.count + '</td></tr>';
+    });
+    html += '</tbody></table>';
+    if (d.scoreThreshold && d.scoreThreshold.recommended) {
+      html += '<div style="margin-top:12px"><div class="threshold-box">' +
+        '<div><div class="threshold-num">' + d.scoreThreshold.recommended + '</div>' +
+        '<div class="threshold-label">min score to apply</div></div>' +
+        '<div class="threshold-reason">' + esc(d.scoreThreshold.reasoning) + '</div></div></div>';
+    }
+    html += '</div>';
+    html += '</div>'; // end two-col row
+
+    // ── Two-column row: Archetypes + Blockers ──
+    html += '<div style="display:flex;gap:14px;margin-bottom:18px">';
+
+    // Archetypes
+    if (d.archetypeBreakdown && d.archetypeBreakdown.length) {
+      var topArch = d.archetypeBreakdown.filter(function(a){ return a.archetype !== 'Unknown'; }).slice(0, 6);
+      var archMax = Math.max(1, Math.max.apply(null, topArch.map(function(a){ return a.total; })));
+      html += '<div class="stats-block" style="flex:1"><div class="sb-heading">By Role Archetype</div>';
+      topArch.forEach(function(a) {
+        var pct = Math.round(a.total / archMax * 100);
+        var conv = a.conversionRate;
+        html += '<div class="bar-row">' +
+          '<span class="bar-label" style="width:120px;font-size:11px" title="' + esc(a.archetype) + '">' +
+            esc(a.archetype.length > 14 ? a.archetype.slice(0,13) + '…' : a.archetype) + '</span>' +
+          '<div class="bar-track"><div class="bar-fill" style="width:' + pct + '%;background:var(--accent)"></div></div>' +
+          '<span class="bar-count" style="width:70px">' + a.total + ' <span style="color:' + (conv > 0 ? 'var(--green)':'var(--muted)') + ';font-size:11px">(' + conv + '%)</span></span></div>';
+      });
+      html += '</div>';
+    }
+
+    // Blockers
+    if (d.blockerAnalysis && d.blockerAnalysis.length) {
+      var blockMax = Math.max(1, d.blockerAnalysis[0].frequency);
+      html += '<div class="stats-block" style="flex:1"><div class="sb-heading">Top Blockers</div>';
+      d.blockerAnalysis.forEach(function(b) {
+        var pct = Math.round(b.frequency / blockMax * 100);
+        html += '<div class="bar-row">' +
+          '<span class="bar-label" style="width:140px;font-size:11px">' + esc(b.blocker.replace(/-/g,' ')) + '</span>' +
+          '<div class="bar-track"><div class="bar-fill" style="width:' + pct + '%;background:var(--red)"></div></div>' +
+          '<span class="bar-count">' + b.frequency + 'x <span style="color:var(--muted);font-size:11px">(' + b.percentage + '%)</span></span></div>';
+      });
+      html += '</div>';
+    }
+
+    html += '</div>'; // end two-col row
+
+    // ── Two-column row: Remote policy + Tech gaps ──
+    html += '<div style="display:flex;gap:14px;margin-bottom:18px">';
+
+    // Remote policy
+    if (d.remotePolicy && d.remotePolicy.length) {
+      var remMax = Math.max(1, Math.max.apply(null, d.remotePolicy.map(function(r){ return r.total; })));
+      html += '<div class="stats-block" style="flex:1"><div class="sb-heading">Remote Policy</div>';
+      d.remotePolicy.forEach(function(r) {
+        var pct = Math.round(r.total / remMax * 100);
+        var conv = r.conversionRate;
+        html += '<div class="bar-row">' +
+          '<span class="bar-label" style="width:130px;font-size:11px">' + esc(r.policy.replace(/-/g,' ')) + '</span>' +
+          '<div class="bar-track"><div class="bar-fill" style="width:' + pct + '%;background:var(--accent)"></div></div>' +
+          '<span class="bar-count" style="width:80px">' + r.total + ' <span style="color:' + (conv > 0 ? 'var(--green)':'var(--muted)') + ';font-size:11px">(' + conv + '%✓)</span></span></div>';
+      });
+      html += '</div>';
+    }
+
+    // Tech gaps
+    if (d.techStackGaps && d.techStackGaps.length) {
+      html += '<div class="stats-block" style="flex:1"><div class="sb-heading">Tech Gaps in Rejections</div>' +
+        '<div style="display:flex;flex-wrap:wrap;margin-top:4px">';
+      d.techStackGaps.slice(0, 12).forEach(function(g) {
+        html += '<div class="gap-pill"><span>' + esc(g.skill) + '</span><span class="gap-pill-count">' + g.frequency + 'x</span></div>';
+      });
+      html += '</div></div>';
+    }
+
+    html += '</div>'; // end two-col row
+
+    el.innerHTML = html;
+  }
+
+  window.openActivityFromReport = function() {
+    if (!currentReportAppNum) return;
+    var label = document.getElementById('report-label').textContent;
+    var sep = label.indexOf(' — ');
+    var company = sep >= 0 ? label.slice(0, sep) : label;
+    var role    = sep >= 0 ? label.slice(sep + 3) : '';
+    openStatusPanel(currentReportAppNum, company, role);
+  };
+
+  // ── Activity / Status panel ───────────────────────────────────────
+  var currentPanelAppNum = null;
+
+  function openStatusPanel(appNum, company, role) {
+    currentPanelAppNum = parseInt(appNum);
+    document.getElementById('sp-company').textContent = company || '';
+    document.getElementById('sp-role').textContent    = role || '';
+    document.getElementById('sp-date-input').value   = new Date().toISOString().slice(0, 10);
+    document.getElementById('sp-notes-input').value  = '';
+    document.getElementById('sp-save-btn').disabled  = false;
+    document.getElementById('sp-save-btn').textContent = 'Add Event';
+    document.getElementById('status-panel').classList.add('open');
+    document.getElementById('panel-overlay').classList.add('open');
+    loadActivityLog(currentPanelAppNum);
+  }
+
+  window.closeStatusPanel = function() {
+    document.getElementById('status-panel').classList.remove('open');
+    document.getElementById('panel-overlay').classList.remove('open');
+  };
+
+  function loadActivityLog(appNum) {
+    var log = document.getElementById('sp-log');
+    log.innerHTML = '<div class="sp-empty">Loading…</div>';
+    fetch('/activity?app=' + encodeURIComponent(appNum))
+      .then(function(r) { return r.json(); })
+      .then(function(data) {
+        var baseline = data.baseline || null;
+        var entries  = data.entries  || [];
+        log.innerHTML = '';
+
+        if (baseline) {
+          var div = document.createElement('div');
+          div.className = 'sp-event';
+          div.innerHTML =
+            '<div class="sp-event-meta">' +
+              '<span class="sp-event-date">' + esc(baseline.date) + '</span>' +
+              '<span class="status-chip status-evaluated">Evaluated</span>' +
+            '</div>' +
+            '<div class="sp-event-notes">' + esc(baseline.score) + '</div>';
+          log.appendChild(div);
+        }
+
+        if (!entries.length && !baseline) {
+          log.innerHTML = '<div class="sp-empty">No activity logged yet.</div>';
+          return;
+        }
+
+        entries.forEach(function(e) {
+          var div = document.createElement('div');
+          div.className = 'sp-event';
+          div.innerHTML =
+            '<div class="sp-event-meta">' +
+              '<span class="sp-event-date">' + esc(e.date) + '</span>' +
+              '<span class="' + statusChipClass(e.event) + '">' + esc(e.event) + '</span>' +
+            '</div>' +
+            (e.notes ? '<div class="sp-event-notes">' + esc(e.notes) + '</div>' : '');
+          log.appendChild(div);
+        });
+      })
+      .catch(function() {
+        log.innerHTML = '<div class="sp-empty" style="color:var(--red)">Failed to load activity.</div>';
+      });
+  }
+
+  function statusChipClass(status) {
+    var base = 'status-chip';
+    var s = (status || '').toLowerCase();
+    if (s === 'applied')   return base + ' status-applied';
+    if (s === 'interview') return base + ' status-interview';
+    if (s === 'offer')     return base + ' status-offer';
+    if (s === 'rejected')  return base + ' status-rejected';
+    if (s === 'discarded') return base + ' status-discarded';
+    return base;
+  }
+
+  window.saveActivity = function() {
+    if (!currentPanelAppNum) return;
+    var event = document.getElementById('sp-event-select').value;
+    var date  = document.getElementById('sp-date-input').value;
+    var notes = document.getElementById('sp-notes-input').value.trim();
+    if (!date) { alert('Please select a date.'); return; }
+    var btn = document.getElementById('sp-save-btn');
+    btn.disabled = true; btn.textContent = 'Saving…';
+    fetch('/activity', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ app: currentPanelAppNum, event: event, date: date, notes: notes })
+    })
+    .then(function(r) { return r.json(); })
+    .then(function(d) {
+      if (d.ok) {
+        document.getElementById('sp-notes-input').value = '';
+        loadActivityLog(currentPanelAppNum);
+        // Refresh score table in background so status chip updates on next open
+        if (!document.getElementById('table-wrap').classList.contains('hidden')) showTable();
+      }
+    })
+    .catch(function() { alert('Save failed. Please try again.'); })
+    .finally(function() { btn.disabled = false; btn.textContent = 'Add Event'; });
   };
 
   function markdownToHtml(md) {
@@ -730,9 +1572,15 @@
   }
 
   // ── Terminal helpers ──────────────────────────────────────────────
+  function hideAllPanels() {
+    ['welcome','terminal','table-wrap','stats-wrap','patterns-wrap','followup-wrap','report-wrap'].forEach(function(id) {
+      document.getElementById(id).classList.add('hidden');
+    });
+    document.getElementById('liveness-actions').classList.remove('visible');
+  }
+
   function showTerminal() {
-    document.getElementById('welcome').classList.add('hidden');
-    document.getElementById('table-wrap').classList.add('hidden');
+    hideAllPanels();
     document.getElementById('terminal').classList.remove('hidden');
   }
 
@@ -743,13 +1591,18 @@
   function appendLine(text) {
     var span = document.createElement('span');
     span.textContent = text + '\n';
-    // simple coloring hints
-    if (/error|failed|✗/i.test(text))  span.className = 't-err';
-    else if (/warn/i.test(text))        span.className = 't-warn';
-    else if (/✓|done|success|added/i.test(text)) span.className = 't-ok';
-    else if (/^\s*$/.test(text))        span.className = 't-dim';
+    var t = text.trimStart();
+    if (/^(✅|🟢|✓)/.test(t) || /\b(done|success|clean|no duplicates|no pending|valid)\b/i.test(t))
+      span.className = 't-ok';
+    else if (/^(❌|✗)/.test(t) || /\b(error|failed|invalid)\b/i.test(t))
+      span.className = 't-err';
+    else if (/^(⚠️|⚠)/.test(t) || /\bwarn/i.test(t))
+      span.className = 't-warn';
+    else if (/^(📊|📈|📅|🔍|⚡|🔀|🧹|✅ No)/.test(t) || /^=+$/.test(t))
+      span.className = 't-accent';
+    else if (/^\s*$/.test(text))
+      span.className = 't-dim';
     outputEl.appendChild(span);
-    // scroll to bottom
     var term = document.getElementById('terminal');
     term.scrollTop = term.scrollHeight;
   }
@@ -787,5 +1640,33 @@
   }
 })();
 </script>
+
+<div id="panel-overlay" onclick="closeStatusPanel()"></div>
+<div id="status-panel">
+  <div id="sp-header">
+    <div id="sp-title">
+      <div id="sp-company"></div>
+      <div id="sp-role"></div>
+    </div>
+    <button id="sp-close" onclick="closeStatusPanel()">✕</button>
+  </div>
+  <div id="sp-log"></div>
+  <div id="sp-form">
+    <div id="sp-form-title">Add Event</div>
+    <div class="sp-row">
+      <select id="sp-event-select">
+        <option value="Applied">Applied</option>
+        <option value="Responded">Responded</option>
+        <option value="Interview">Interview</option>
+        <option value="Offer">Offer</option>
+        <option value="Rejected">Rejected</option>
+        <option value="Discarded">Discarded</option>
+      </select>
+      <input type="date" id="sp-date-input">
+    </div>
+    <textarea id="sp-notes-input" placeholder="Notes (optional)…" spellcheck="true"></textarea>
+    <button id="sp-save-btn" onclick="saveActivity()">Add Event</button>
+  </div>
+</div>
 </body>
 </html>

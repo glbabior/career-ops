@@ -1,0 +1,78 @@
+# Applications Tracker
+
+| # | Date | Company | Role | Score | Status | PDF | Report | Notes |
+|---|------|---------|------|-------|--------|-----|--------|-------|
+| 21 | 2026-05-20 | Sony Interactive Entertainment | Sr. Director, Data Platform Engineering & Operations (San Diego) | 4.3/5 | Evaluated | ❌ | [021](reports/021-sony-interactive-entertainment-san-diego-2026-05-20.md) | Strongest title/domain match to date; Kafka+latency+global org are direct hits; apply to both Sony postings |
+| 22 | 2026-05-20 | Sony Interactive Entertainment | Sr. Director, Data Platform Engineering & Operations (San Mateo) | 4.2/5 | Rejected | ❌ | [022](reports/022-sony-interactive-entertainment-san-mateo-2026-05-20.md) | Companion to #021; higher comp ($312K-$468K) but Bay Area COL; prefer San Diego if no relocation |
+| 1 | 2026-05-19 | Roblox | Director of Engineering, AI for Roblox Studio | 3.0/5 | Evaluated | ❌ | [001](reports/001-roblox-ai-studio-2026-05-19.md) | Critical gap: no LLM/agentic AI or IDE/developer-tools experience; comp is attractive ($399K+ base) but domain mismatch too large |
+| 2 | 2026-05-19 | Roblox | Director of Engineering, Studio Systems | 2.8/5 | Evaluated | ❌ | [002](reports/002-roblox-studio-systems-2026-05-19.md) | Critical gaps: IDE/developer-tools domain and C++ experience absent from CV; MoM and platform leadership are strong but insufficient for specialist IDE role |
+| 3 | 2026-05-19 | Pinterest | Director, Engineering - Online Systems | 3.4/5 | Applied | ❌ | [003](reports/003-pinterest-online-systems-2026-05-19.md) | Best CV-to-JD fit in batch; reliability/Kafka/MoM align well; cautioned by active 15% layoff restructuring and web-scale gap |
+| 4 | 2026-05-19 | Vanta | Engineering Director, Automation | 3.2/5 | Applied | ❌ | [004](reports/004-vanta-eng-director-automation-2026-05-19.md) | Good org-leadership fit; no security domain required; comp may be below target floor on base; strong legitimacy ($4B valuation, Series D Jul 2025) |
+| 5 | 2026-05-19 | Medium | Vice President of Engineering | 4.0/5 | Evaluated | ❌ | [005](reports/005-medium-vp-engineering-2026-05-19.md) | Strongest fit in batch: VP title, remote, $300K-400K range, 4-function org mirrors TiVo; gap is product AI delivery; verify posting still active (may be stale since Jul 2025) |
+| 6 | 2026-05-19 | Chainguard | VP, Engineering | 3.6/5 | Evaluated | ❌ | [006](reports/006-chainguard-2026-05-19.md) | Strong comp ($320-350K) and org-scale fit; domain gap in cloud-native security/open source; verify posting is still open before applying |
+| 7 | 2026-05-19 | Mission Lane | Director of Engineering | 3.2/5 | Evaluated | ❌ | [007](reports/007-mission-lane-2026-05-19.md) | Under-leveled vs. Gregory's Sr. Dir. background; recent layoffs (Nov 2025); posting appears removed; fintech/GCP domain gaps; comp likely below $240K minimum |
+| 8 | 2026-05-19 | Smartsheet | Director, Engineering | 3.4/5 | Applied | ❌ | [008](reports/008-smartsheet-2026-05-19.md) | Comp range overlaps ($235-315K); strong org-scale fit; critical React/Redux front-end gap; two rounds of layoffs in 6 months under new PE ownership; proceed with caution |
+| 9 | 2026-05-19 | Auctane | Senior Engineering Director | 3.5/5 | Evaluated | ❌ | [009](reports/009-auctane-2026-05-19.md) | Title match (Sr. Dir.) but Austin hybrid conflicts with Pasadena/remote-first; comp likely below $240K minimum; PE-owned with 2024 mass layoffs history; verify comp and remote flexibility before applying |
+| 10 | 2026-05-19 | DEFCON AI | VP of Engineering | 3.1/5 | Evaluated | ❌ | [010](reports/010-defcon-ai-2026-05-19.md) | Well-funded defense AI startup; comp $250-290K meets floor; hard blockers: US Citizenship required + DoD/CMMC experience required — fatal gaps without defense background; do not apply without verifying citizenship status |
+| 11 | 2026-05-19 | Pathstream | Engineering Director | 3.2/5 | Evaluated | ❌ | [011](reports/011-pathstream-2026-05-19.md) | EdTech Series B; comp likely below $240K floor; AI-native gap; verify salary before investing time |
+| 12 | 2026-05-19 | Scale to Win | VP of Engineering | 2.8/5 | Evaluated | ❌ | [012](reports/012-scale-to-win-2026-05-19.md) | Player-coach IC role at 6-person political tech team; downlevel; $250K base below target; only apply with strong mission alignment |
+| 13 | 2026-05-19 | Percona | VP of Engineering | 3.6/5 | Evaluated | ❌ | [013](reports/013-percona-2026-05-19.md) | Good org-level fit; open-source/database domain gap; comp likely below target; new CEO = transformation opportunity |
+| 14 | 2026-05-19 | Rula | Director of Engineering | 3.8/5 | Evaluated | ❌ | [014](reports/014-rula-2026-05-19.md) | Strong manager-of-managers fit; well-funded Series C; healthcare domain new; push for Sr. Director title; verify comp vs. $240K floor |
+| 15 | 2026-05-19 | Optro | VP of Engineering, Platform & Architecture | 4.3/5 | Evaluated | ❌ | [015](reports/015-optro-2026-05-19.md) | Strongest match in batch; direct re-platforming fit; $300M+ ARR PE-backed; apply ASAP; negotiate $300-380K total comp |
+| 16 | 2026-05-19 | Rula | Director of Cloud & Platform Engineering | 4.0/5 | Evaluated | ❌ | [016](reports/016-rula-2026-05-19.md) | Strong platform/reliability match; AWS + DevOps depth required; comp likely $260K–$310K base; verify range before applying |
+| 17 | 2026-05-19 | Rula | Sr. Director of Engineering | 3.8/5 | Evaluated | ❌ | [017](reports/017-rula-2026-05-19.md) | Exact title match; application engineering domain is weaker fit than 016; healthcare gap; comp ~$280K–$320K base; apply 016 first |
+| 18 | 2026-05-19 | Vanta | Senior Director of Engineering | 3.7/5 | Evaluated | ❌ | [018](reports/018-vanta-2026-05-19.md) | Highest comp of batch ($322K–$415K base); 50+ org matches; verify posting is still live (one source showed removal May 2025); Blind layoff discussions active |
+| 19 | 2026-05-19 | Alignable | Director of Engineering | 3.2/5 | Evaluated | ❌ | [019](reports/019-alignable-2026-05-19.md) | Overqualified on scope (20-person team); different tech stack (Ruby/Elixir); comp likely below $240K minimum; verify salary before investing time |
+| 20 | 2026-05-19 | Loop | VP of Engineering | 3.5/5 | Evaluated | ❌ | [020](reports/020-loop-2026-05-19.md) | VP title requires 2+ yrs VP experience (gap); eCommerce domain gap; Glassdoor flags quiet layoffs; worth pursuing via warm intro to bypass ATS |
+| 23 | 2026-03-21 | Affirm | Director, Software Engineering (Site Reliability Engineering) | 0.0/5 | Applied | ❌ | — |  |
+| 24 | 2026-03-25 | Affirm | Director, Software Engineering | 0.0/5 | Applied | ❌ | — |  |
+| 25 | 2026-05-13 | Affirm | Director, Eng (Loans Lifecycle) | 0.0/5 | Applied | ❌ | — | MyGreenhouse |
+| 26 | 2025-11-13 | Amazon | Sr. Manager, Solutions Architecture - Media, Entertainment, Games & Sports | 0.0/5 | Rejected | ❌ | — | Sr. Manager, Solutions Architecture - Media, Entertainment, Games & Sports - Job ID: 3119928  ›  Amazon.jobs |
+| 27 | 2025-11-13 | Amazon | Sr Manager, Solutions Architecture , Production & Post Technology | 0.0/5 | Rejected | ❌ | — | Sr Manager, Solutions Architecture , Production & Post Technology - Job ID: 2953029  ›  Amazon.jobs |
+| 28 | 2025-12-14 | Amazon | Head, Emerging Technology Engineering, Production & Post Technology | 0.0/5 | Rejected | ❌ | — | Head, Emerging Technology Engineering, Production & Post Technology  ›  Amazon  ›  LinkedIn |
+| 29 | 2026-03-22 | Capital Group | Platform Eng Sr. Mgr. | 0.0/5 | Applied | ❌ | — |  |
+| 30 | 2025-11-23 | Capital Group | Director, Engineering; Global Technology | 0.0/5 | Rejected | ❌ | — | https://capgroup.wd1.myworkdayjobs.com/en-US/capitalgroupcareers/job/Director--Engineering--Global-Technology_JR5725 |
+| 31 | 2026-04-23 | Centene | Director, Application Development Eng | 0.0/5 | Rejected | ❌ | — | Candidate Home |
+| 32 | 2026-03-21 | Circle | VP, Engineering | 0.0/5 | Applied | ❌ | — |  |
+| 33 | 2025-11-17 | Comcast | Director, Engineering (Ad Tech & Data)-Xumo | 0.0/5 | Rejected | ❌ | — | Director, Engineering (Ad Tech & Data)-Xumo  ›  Comcast  ›  LinkedIn |
+| 34 | 2025-12-12 | CVS | Executive Director - Engineering, SRE - Retail, Pharmacy & Dispensing | 0.0/5 | Responded | ❌ | — | Executive Director - Engineering, SRE - Retail, Pharmacy & Dispensing |
+| 35 | 2026-03-16 | DirectTV | Sr. Director – Software Engineering – Digital, IAM and Data Flows | 0.0/5 | Rejected | ❌ | — | Candidate Home |
+| 36 | 2026-01-13 | Disney | Exec. Dir., Infrastructure Engineering | 0.0/5 | Rejected | ❌ | — | https://disney.wd5.myworkdayjobs.com/en-US/disneycareer/job/Exec-Dir--Infrastructure-Engineering_10137241 |
+| 37 | 2025-11-14 | Disney | Senior Manager, Software Engineering - Streaming Backend Quality | 0.0/5 | Rejected | ❌ | — | https://disney.wd5.myworkdayjobs.com/en-US/disneycareer/job/Senior-Manager--Software-Engineering---Streaming-Backend-Quality_10132553 |
+| 38 | 2025-11-13 | Duckduckgo | Engineering Director, Browser Platform | 0.0/5 | Discarded | ❌ | — | https://www.linkedin.com/jobs/view/4291083694 |
+| 39 | 2026-01-19 | EA | Head of Product Development | 0.0/5 | Rejected | ❌ | — | Head of Product Development - 210124 - Electronic Arts |
+| 40 | 2026-04-25 | Enzo | VP Software Engineering | 0.0/5 | Applied | ❌ | — | Vice President of Software Engineering  ›  Enzo Tech Group  ›  LinkedIn |
+| 41 | 2026-03-25 | Filevine | VP of Engineering Reliability | 0.0/5 | Applied | ❌ | — |  |
+| 42 | 2026-03-27 | Foundant | Senior Director, Engineering | 0.0/5 | Applied | ❌ | — |  |
+| 43 | 2025-11-25 | GitHub | Senior Director, Software Engineering, Copilot Platform | 0.0/5 | Rejected | ❌ | — | Senior Director, Software Engineering, Copilot Platform  ›  GitHub  ›  LinkedIn |
+| 44 | 2025-11-25 | GitHub | Sr. Dir, Software Engineering | 0.0/5 | Rejected | ❌ | — | Sr. Dir, Software Engineering in Remote  ›  Careers at US Remote |
+| 45 | 2025-12-31 | Google | Senior Director, Platform Operations, GDC | 0.0/5 | Rejected | ❌ | — | Senior Director, Platform Operations, GDC  ›  Google  ›  LinkedIn |
+| 46 | 2026-01-11 | Google | Engineering Director, Log Storage, Data Analytics and Insights | 0.0/5 | Rejected | ❌ | — | Engineering Director, Log Storage, Data Analytics and Insights — Google Careers |
+| 47 | 2026-04-10 | Indeed | Senior Director, Technical Prog Mgmt | 0.0/5 | Rejected | ❌ | — | Senior Director, Technical Program Management - Remote - Indeed.com |
+| 48 | 2025-12-06 | Inspyr | Director of Engineering (Payments) | 0.0/5 | Applied | ❌ | — |  |
+| 49 | 2026-04-10 | Jobgether | Director of Engineering | 0.0/5 | Applied | ❌ | — | Remote Director of Engineering  ›  Jobgether  ›  LinkedIn |
+| 50 | 2026-03-29 | LinkedIn | Director, Soft Eng, System Infra | 0.0/5 | Applied | ❌ | — |  |
+| 51 | 2026-05-12 | LinkedIn | Director, Software Engineering — Automation Platform & Apps | 0.0/5 | Applied | ❌ | — | Director, Software Engineering — Automation Platform & Apps  ›  LinkedIn  ›  LinkedIn |
+| 52 | 2026-04-24 | Loki | Director of Engineering | 0.0/5 | Applied | ❌ | — |  |
+| 53 | 2026-04-27 | Lululemon | Technology Dir Eng - Logistics & Trade | 0.0/5 | Rejected | ❌ | — | https://careers.lululemon.com/en_US/careers/JobDetail/Technology-Director-Engineering-Logistics-and-Trade/58204 |
+| 54 | 2026-04-02 | Netflix | (unknown) | 0.0/5 | Applied | ❌ | — | Program Manager, Operations  ›  Los Angeles,California,United States of America  ›  Netflix |
+| 55 | 2026-05-11 | Netflix | Manager, Engineering - Page  Systems | 0.0/5 | Responded | ❌ | — | Manager, Engineering - Page Systems  ›  USA - Remote  ›  Netflix |
+| 56 | 2025-11-18 | Netflix | Engineering Manager - TV Innovation | 0.0/5 | Rejected | ❌ | — | Engineering Manager - TV Innovation  ›  Netflix  ›  LinkedIn |
+| 57 | 2025-11-24 | Netflix | Engineering Manager, Asset Personalization Experience | 0.0/5 | Rejected | ❌ | — | Engineering Manager, Asset Personalization Experience  ›  Netflix  ›  LinkedIn |
+| 58 | 2025-12-15 | Netflix | Director, Growth Data Engineering | 0.0/5 | Rejected | ❌ | — | Director, Growth Data Engineering  ›  Netflix  ›  LinkedIn |
+| 59 | 2025-12-22 | Nvidia | Senior Manager, Software Engineering - Media and Entertainment | 0.0/5 | Rejected | ❌ | — | Senior Manager, Software Engineering - Media and Entertainment  ›  NVIDIA  ›  LinkedIn |
+| 60 | 2026-02-10 | OpenAI | Engingeering Manager - Chat GPT Growth | 0.0/5 | Applied | ❌ | — | Engineering Manager, ChatGPT Growth @ OpenAI |
+| 61 | 2025-11-17 | Oracle | Software Development Director | 0.0/5 | Rejected | ❌ | — | Software Development Director  ›  Oracle  ›  LinkedIn |
+| 62 | 2025-11-17 | Oracle | Software Development Snr Director | 0.0/5 | Rejected | ❌ | — | Software Development Snr Director  ›  Oracle  ›  LinkedIn |
+| 63 | 2026-04-27 | PrePass | Director of Software Engineering | 0.0/5 | Applied | ❌ | — | Director of Software Engineering  ›  PrePass  ›  LinkedIn |
+| 64 | 2026-04-05 | Riot Games | Director, Data Engineering - League Studios | 0.0/5 | Rejected | ❌ | — |  |
+| 65 | 2025-11-28 | Snap | Senior Manager, Software Engineering, Ads Format | 0.0/5 | Rejected | ❌ | — | Senior Manager, Software Engineering, Ads Format  ›  Snap Inc.  ›  LinkedIn |
+| 66 | 2026-01-27 | Stubhub | Engineering Manager, Infrastructure | 0.0/5 | Rejected | ❌ | — | Engineering Manager - Infrastructure  ›  StubHub  ›  LinkedIn |
+| 67 | 2026-02-19 | System1 | Senior Director of Eng, Technical Strategy & Execution | 0.0/5 | Applied | ❌ | — |  |
+| 68 | 2026-04-03 | Vontier | VP, Software Engineering | 0.0/5 | Applied | ❌ | — |  |
+| 69 | 2026-04-23 | Walmart | Senior Director, Software Engineering | 0.0/5 | Applied | ❌ | — | Applications |
+| 70 | 2026-04-09 | Weave | Senior Director of Engineering | 0.0/5 | Applied | ❌ | — |  |
+| 71 | 2026-02-02 | Whatnot | Engineering Manager, Platform Eng | 0.0/5 | Rejected | ❌ | — | Engineering Manager, Platform Engineering @ Whatnot |
+| 72 | 2025-11-24 | WME | Head of Engineering | 0.0/5 | Responded | ❌ | — | Head of Engineering  ›  Endeavor  ›  LinkedIn |
+| 73 | 2026-03-19 | Zillow | Senior Engineering Manager | 0.0/5 | Rejected | ❌ | — |  |
+| 74 | 2026-04-10 | Vanta | Director of Engineering | 0.0/5 | Applied | ❌ | — | Director of Engineering @ Vanta |
